@@ -87,6 +87,10 @@ const monads=(function(){
       return other;
     }
 
+    orElse(f){
+      return f();
+    }
+
     filter(){
       return this.value;
     }
@@ -109,6 +113,10 @@ const monads=(function(){
 
     getOrElse(){
       return this.value;
+    }
+
+    orElse(){
+      return this;
     }
 
     filter(f){
@@ -181,7 +189,7 @@ const monads=(function(){
     }
 
     orElse(f){
-      return f(this.value);
+      return f(this._value);
     }
 
     getOrElseThrow(error){
