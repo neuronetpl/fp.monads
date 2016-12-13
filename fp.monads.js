@@ -267,10 +267,226 @@ class IO {
 
 }
 
+let delayed = typeof setImmediate !== 'undefined'?  setImmediate
+            : typeof process !== 'undefined'?       process.nextTick
+            : /* otherwise */                       setTimeout
+
+
+class Task {
+
+  constructor(computation,cleanup){
+    this.fork = computation;
+    this.cleanup = cleanup || function() {};
+  }
+
+  of(b) {
+    return new Task(function(_, resolve) {
+      return resolve(b);
+    });
+  }
+
+  rejected(a) {
+    return new Task(function(reject) {
+      return reject(a);
+    });
+  }
+
+  map(f) {
+    var fork = this.fork;
+    var cleanup = this.cleanup;
+
+    return new Task(function(reject, resolve) {
+      return fork(function(a) {
+        return reject(a);
+      }, function(b) {
+        return resolve(f(b));
+      });
+    }, cleanup);
+  }
+
+  chain(f) {
+    var fork = this.fork;
+    var cleanup = this.cleanup;
+
+    return new Task(function(reject, resolve) {
+      return fork(function(a) {
+        return reject(a);
+      }, function(b) {
+        return f(b).fork(reject, resolve);
+      });
+    }, cleanup);
+  }
+
+  ap(that) {
+    var forkThis = this.fork;
+    var forkThat = that.fork;
+    var cleanupThis = this.cleanup;
+    var cleanupThat = that.cleanup;
+
+    function cleanupBoth(state) {
+      cleanupThis(state[0]);
+      cleanupThat(state[1]);
+    }
+
+    return new Task(function(reject, resolve) {
+      var func, funcLoaded = false;
+      var val, valLoaded = false;
+      var rejected = false;
+      var allState;
+
+      var thisState = forkThis(guardReject, guardResolve(function(x) {
+        funcLoaded = true;
+        func = x;
+      }));
+
+      var thatState = forkThat(guardReject, guardResolve(function(x) {
+        valLoaded = true;
+        val = x;
+      }));
+
+      function guardResolve(setter) {
+        return function(x) {
+          if (rejected) {
+            return;
+          }
+
+          setter(x);
+          if (funcLoaded && valLoaded) {
+            delayed(function(){ cleanupBoth(allState) });
+            return resolve(func(val));
+          } else {
+            return x;
+          }
+        }
+      }
+
+      function guardReject(x) {
+        if (!rejected) {
+          rejected = true;
+          return reject(x);
+        }
+      }
+
+      return allState = [thisState, thatState];
+    }, cleanupBoth);
+  }
+
+  concat(that) {
+    var forkThis = this.fork;
+    var forkThat = that.fork;
+    var cleanupThis = this.cleanup;
+    var cleanupThat = that.cleanup;
+
+    function cleanupBoth(state) {
+      cleanupThis(state[0]);
+      cleanupThat(state[1]);
+    }
+
+    return new Task(function(reject, resolve) {
+      var done = false;
+      var allState;
+      var thisState = forkThis(guard(reject), guard(resolve));
+      var thatState = forkThat(guard(reject), guard(resolve));
+
+      return allState = [thisState, thatState];
+
+      function guard(f) {
+        return function(x) {
+          if (!done) {
+            done = true;
+            delayed(function(){ cleanupBoth(allState) })
+            return f(x);
+          }
+        };
+      }
+    }, cleanupBoth);
+
+  }
+
+  empty() {
+    return new Task(function() {});
+  }
+
+  toString() {
+    return 'Task';
+  }
+
+  orElse(f) {
+    var fork = this.fork;
+    var cleanup = this.cleanup;
+
+    return new Task(function(reject, resolve) {
+      return fork(function(a) {
+        return f(a).fork(reject, resolve);
+      }, function(b) {
+        return resolve(b);
+      });
+    }, cleanup);
+  }
+
+  fold(f, g) {
+    var fork = this.fork;
+    var cleanup = this.cleanup;
+
+    return new Task(function(reject, resolve) {
+      return fork(function(a) {
+        return resolve(f(a));
+      }, function(b) {
+        return resolve(g(b));
+      });
+    }, cleanup);
+  }
+
+  cata(pattern) {
+    return this.fold(pattern.Rejected, pattern.Resolved);
+  }
+
+  swap() {
+    var fork = this.fork;
+    var cleanup = this.cleanup;
+
+    return new Task(function(reject, resolve) {
+      return fork(function(a) {
+        return resolve(a);
+      }, function(b) {
+        return reject(b);
+      });
+    }, cleanup);
+  }
+
+  bimap(f, g) {
+    var fork = this.fork;
+    var cleanup = this.cleanup;
+
+    return new Task(function(reject, resolve) {
+      return fork(function(a) {
+        return reject(f(a));
+      }, function(b) {
+        return resolve(g(b));
+      });
+    }, cleanup);
+  }
+
+  rejectedMap(f) {
+    var fork = this.fork;
+    var cleanup = this.cleanup;
+
+    return new Task(function(reject, resolve) {
+      return fork(function(a) {
+        return reject(f(a));
+      }, function(b) {
+        return resolve(b);
+      });
+    }, cleanup);
+  }
+
+}
+
+
 if(typeof module!="undefined"){
   if(typeof module.exports != "undefined"){
     module.exports={
-      Container,Maybe,Just,Nothing,Left,Right,Either,IO
+      Container,Maybe,Just,Nothing,Left,Right,Either,IO,Task
     };
   }
 }

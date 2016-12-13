@@ -1,0 +1,32 @@
+{
+  "name": "fp.monads",
+  "version": "0.0.1",
+  "description": "basic monads/functors in one file",
+  "main": "fp.monads.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neuronetpl/fp.monads.git"
+  },
+  "keywords": [
+    "fp",
+    "functional",
+    "programming",
+    "monad",
+    "monads",
+    "functor",
+    "functors",
+    "io",
+    "maybe",
+    "either",
+    "container"
+  ],
+  "author": "neuronet.it@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/neuronetpl/fp.monads/issues"
+  },
+  "homepage": "https://github.com/neuronetpl/fp.monads#readme"
+}
