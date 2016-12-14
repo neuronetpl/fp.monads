@@ -28,5 +28,9 @@
   "bugs": {
     "url": "https://github.com/neuronetpl/fp.monads/issues"
   },
-  "homepage": "https://github.com/neuronetpl/fp.monads#readme"
+  "homepage": "https://github.com/neuronetpl/fp.monads#readme",
+  "devDependencies": {
+    "jest-cli": "^17.0.3",
+    "jscheck": "^0.2.0"
+  }
 }
