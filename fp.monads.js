@@ -493,8 +493,8 @@ const monads=(function(){
   }
 
   function map(f){
-    return function(any_functor_at_all) {
-      return any_functor_at_all.map(f);
+    return function(functor) {
+      return functor.map(f);
     }
   }
 
@@ -508,8 +508,33 @@ const monads=(function(){
     }
   }
 
+  function maybe(x,f){
+    return function(m){
+      return m.isNothing ? x : f(m._value);
+    }
+  }
+
+  function either(f, g) {
+    return function(e){
+      return e instanceof Left ? f(e._value) : g(e._value);
+    }
+  }
+
   return {
-    Container,Maybe,Just,Nothing,Left,Right,Either,IO,Task,chain,map,join
+    Container,
+    Maybe,
+    Just,
+    Nothing,
+    Left,
+    Right,
+    Either,
+    IO,
+    Task,
+    chain,
+    map,
+    join,
+    maybe,
+    either
   }
 
 }());
