@@ -52,7 +52,7 @@ const monads=(function(){
     }
 
     static of(value){
-      return just(value);
+      return this.just(value);
     }
 
     get isNothing(){
