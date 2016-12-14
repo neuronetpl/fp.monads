@@ -4,7 +4,7 @@ const Container = monads.Container;
 
 describe("Container class",()=>{
 
-  let values=jsc.array(10000, jsc.any())();
+  let values=jsc.array(1000, jsc.any())();
 
   it("should create an Container",()=>{
     values.forEach((value,index)=>{
@@ -54,12 +54,13 @@ describe("Container class",()=>{
         expect(_val).toEqual(value);
       });
 
+      let deformed = deform(value);
       let result = container.map((_val)=>{
-        return deform(_val);
+        return deformed;
       });
-      expect(result.value).toBe(deform(value));
+      expect(result.value).toBe(deformed);
       result.map((_val)=>{
-        expect(_val).toBe(deform(value));
+        expect(_val).toBe(deformed);
       });
 
     });

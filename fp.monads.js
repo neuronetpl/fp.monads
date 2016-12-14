@@ -15,11 +15,11 @@ const monads=(function(){
     }
 
     map(f){
-      return new Container(f(this.value));
+      return new Container(f(this._value));
     }
 
     join(){
-      return this.value instanceof Container ? this.value.join() : this;
+      return this._value instanceof Container ? this._value.join() : this;
     }
 
     get(){
@@ -33,10 +33,10 @@ const monads=(function(){
   }
 
 
-  class Maybe extends Container {
+  class Maybe extends Container{
 
     constructor(){
-
+      super();
     }
 
     static just(value){
@@ -48,11 +48,11 @@ const monads=(function(){
     }
 
     static fromNullable(value){
-      return value !== null && typeof value !== "undefined" ? this.just(value) : this.nothing(value);
+      return value !== null && typeof value !== "undefined" ? Maybe.just(value) : Maybe.nothing();
     }
 
     static of(value){
-      return this.just(value);
+      return Maybe.just(value);
     }
 
     get isNothing(){
@@ -63,11 +63,11 @@ const monads=(function(){
       return false;
     }
 
-    get Nothing(){
+    static get Nothing(){
       return Nothing;
     }
 
-    get Just(){
+    static get Just(){
       return Just;
     }
 
@@ -76,6 +76,10 @@ const monads=(function(){
   class Nothing extends Maybe {
 
     map(f){
+      return this;
+    }
+
+    chain(f){
       return this;
     }
 
@@ -92,7 +96,7 @@ const monads=(function(){
     }
 
     filter(){
-      return this.value;
+      return this;
     }
 
     get isNothing(){
@@ -107,8 +111,17 @@ const monads=(function(){
 
   class Just extends Maybe {
 
+    constructor(value){
+      super();
+      this._value=value;
+    }
+
     map(f){
-      return of(f(this.value));
+      return new Just(f(this._value));
+    }
+
+    chain(f){
+      return f(this._value);
     }
 
     getOrElse(){
@@ -120,7 +133,12 @@ const monads=(function(){
     }
 
     filter(f){
-      Maybe.fromNullable(f(this.value) ? this.value : null);
+      // in the case if undefined/null was a proper value to hold (what is weird but...)
+      let result = f(this._value);
+      if(typeof this._value=="undefined" || this._value===null){
+        return result ? this : new Nothing();
+      }
+      return Maybe.fromNullable( result ? this._value : null );
     }
 
     get isJust(){
@@ -128,7 +146,7 @@ const monads=(function(){
     }
 
     toString(){
-      return `Maybe.Just (${this.value})`;
+      return `Maybe.Just (${this._value})`;
     }
 
   }
@@ -136,6 +154,9 @@ const monads=(function(){
 
   class Either extends Container {
 
+    constructor(){
+      super();
+    }
 
     static left(value){
       return new Left(value);
@@ -163,11 +184,11 @@ const monads=(function(){
       }
     }
 
-    get Left(){
+    static get Left(){
       return Left;
     }
 
-    get Right(){
+    static get Right(){
       return Right;
     }
 
@@ -499,6 +520,10 @@ const monads=(function(){
     }
 
   }
+
+
+
+
 
   function map(f){
     return function(functor) {
