@@ -275,6 +275,14 @@ const monads=(function(){
       return this.effect();
     }
 
+    safeRun(){
+      try{
+        return new Right(this.run());
+      }catch(e){
+        return new Left(e);
+      }
+    }
+
   }
 
   let delayed = typeof setImmediate !== 'undefined'?  setImmediate
