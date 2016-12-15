@@ -91,6 +91,10 @@ const monads=(function(){
       return other;
     }
 
+    getOrElseThrow(error){
+      throw new Error(error);
+    }
+
     orElse(f){
       return f();
     }
@@ -125,6 +129,10 @@ const monads=(function(){
     }
 
     getOrElse(){
+      return this.value;
+    }
+
+    getOrElseThrow(error){
       return this.value;
     }
 

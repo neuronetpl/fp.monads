@@ -177,6 +177,20 @@ describe("Either test",()=>{
   });
 
 
+  it("Either.getOrElseThrow",()=>{
+    values.forEach((value)=>{
+      let either = Either.fromNullable(value);
+
+      if(typeof value=="undefined" || value==null){
+        expect(()=>either.getOrElseThrow("error")).toThrow();
+      }else{
+        expect(either.getOrElseThrow("test")).toEqual(value);
+      }
+
+    });
+  });
+
+
   it("Either.chain",()=>{
     values.forEach((value)=>{
       let right=new Either.Right(value);

@@ -195,6 +195,19 @@ describe("Maybe monad",()=>{
     })
   });
 
+  it("Maybe.getOrElseThrow",()=>{
+    values.forEach((value)=>{
+      let maybe = Maybe.fromNullable(value);
+
+      if(typeof value=="undefined" || value==null){
+        expect(()=>maybe.getOrElseThrow("error")).toThrow();
+      }else{
+        expect(maybe.getOrElseThrow("test")).toEqual(value);
+      }
+
+    });
+  });
+
 
   it("chain",()=>{
     values.forEach((value)=>{
