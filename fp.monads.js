@@ -154,8 +154,9 @@ const monads=(function(){
 
   class Either extends Container {
 
-    constructor(){
+    constructor(value){
       super();
+      this._value = value;
     }
 
     static left(value){
@@ -167,11 +168,11 @@ const monads=(function(){
     }
 
     static fromNullable(value){
-      return value!==null && typeof value!="undefined" ? this.right(value) : this.left(value);
+      return value!==null && typeof value!="undefined" ? Either.right(value) : Either.left(value);
     }
 
     static of(value){
-      return this.right(value);
+      return Either.right(value);
     }
 
     static ['try'](f){
@@ -205,6 +206,10 @@ const monads=(function(){
       throw new TypeError("Can't extract the value of a Left");
     }
 
+    merge(){
+      return this._value;
+    }
+
     getOrElse(other){
       return other;
     }
@@ -229,6 +234,14 @@ const monads=(function(){
       return `Either.Left`;
     }
 
+    get isLeft(){
+      return true;
+    }
+
+    get isRight(){
+      return false;
+    }
+
   }
 
   class Right extends Either{
@@ -237,8 +250,12 @@ const monads=(function(){
       return Either.of(f(this.value));
     }
 
+    merge(){
+      return this._value;
+    }
+
     getOrElse(other){
-      return this.value;
+      return this._value;
     }
 
     orElse(){
@@ -254,11 +271,24 @@ const monads=(function(){
     }
 
     filter(f){
-      return Either.fromNullable( f(this.value) ? this.value : null );
+      // in the case if undefined/null was a proper value to hold (what is weird but...)
+      let result = f(this._value);
+      if(typeof this._value=="undefined" || this._value===null){
+        return result ? this : new Left(this._value);
+      }
+      return Either.fromNullable( result ? this._value : null );
     }
 
     toString(){
       return `Either.Right (${this.value})`;
+    }
+
+    get isLeft(){
+      return false;
+    }
+
+    get isRight(){
+      return true;
     }
 
   }
