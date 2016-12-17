@@ -239,7 +239,7 @@ const monads=(function(){
     }
 
     toString(){
-      return `Either.Left`;
+      return `Either.Left (${this._value})`;
     }
 
     get isLeft(){
@@ -288,7 +288,7 @@ const monads=(function(){
     }
 
     toString(){
-      return `Either.Right (${this.value})`;
+      return `Either.Right (${this._value})`;
     }
 
     get isLeft(){
@@ -334,7 +334,7 @@ const monads=(function(){
       return this.effect();
     }
 
-    safeRun(){
+    tryRun(){
       try{
         return new Right(this.run());
       }catch(e){
