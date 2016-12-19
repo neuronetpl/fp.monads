@@ -31,6 +31,7 @@
   "homepage": "https://github.com/neuronetpl/fp.monads#readme",
   "devDependencies": {
     "jest-cli": "^17.0.3",
-    "jscheck": "^0.2.0"
+    "jscheck": "^0.2.0",
+    "ramda": "^0.22.1"
   }
 }

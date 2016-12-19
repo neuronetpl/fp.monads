@@ -4,6 +4,7 @@ const Container = monads.Container;
 const Either = monads.Either;
 const Left = monads.Left;
 const Right = monads.Right;
+const R = require("ramda");
 
 
 describe("Either test",()=>{
@@ -230,6 +231,27 @@ describe("Either test",()=>{
 
       expect( left.filter(()=>true) instanceof Left ).toBe(true);
       expect( left.filter(()=>true) ).toBe(left);
+
+    });
+  });
+
+  it("should apply value to another either (ap)",()=>{
+    values.forEach((value)=>{
+
+      function combine(a,b){
+        return JSON.stringify(a)+":"+JSON.stringify(b)
+      }
+
+      let fn = R.curry((a,b)=>{
+        return combine(a,b);
+      });
+
+      let a = Either.of(value);
+      let b = Either.of("test");
+
+      let ap = Either.of(fn).ap(a).ap(b);
+      expect(ap instanceof Either).toBe(true);
+      expect(ap.value).toEqual(combine(a.value,b.value));
 
     });
   });

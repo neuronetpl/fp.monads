@@ -1,6 +1,7 @@
 const jsc = require("jscheck");
 const monads = require("../fp.monads");
 const Container = monads.Container;
+const R = require("ramda");
 
 describe("Container class",()=>{
 
@@ -132,6 +133,28 @@ describe("Container class",()=>{
     values.forEach((value)=>{
       let container = Container.of(value);
       expect(typeof container.toString()).toBe("string");
+    });
+  });
+
+
+  it("should apply value to another container (ap)",()=>{
+    values.forEach((value)=>{
+
+      function combine(a,b){
+        return JSON.stringify(a)+":"+JSON.stringify(b)
+      }
+
+      let fn = R.curry((a,b)=>{
+        return combine(a,b);
+      });
+
+      let a = Container.of(value);
+      let b = Container.of("test");
+
+      let ap = Container.of(fn).ap(a).ap(b);
+      expect(ap instanceof Container).toBe(true);
+      expect(ap.value).toEqual(combine(a.value,b.value));
+
     });
   });
 

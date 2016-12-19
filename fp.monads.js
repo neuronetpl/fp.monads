@@ -18,6 +18,10 @@ const monads=(function(){
       return new Container(f(this._value));
     }
 
+    ap(b){
+      return b.map(this._value);
+    }
+
     join(){
       return this._value instanceof Container ? this._value.join() : this;
     }
@@ -85,6 +89,10 @@ const monads=(function(){
 
     get value(){
       throw new TypeError("Can't extract the value of a Nothing.");
+    }
+
+    ap(fn){
+      return this;
     }
 
     getOrElse(other){
@@ -212,6 +220,10 @@ const monads=(function(){
 
     get value(){
       throw new TypeError("Can't extract the value of a Left");
+    }
+
+    ap(){
+      return this;
     }
 
     merge(){
@@ -560,7 +572,7 @@ const monads=(function(){
   }
 
 
-
+  // helper functions for compose(map(...),join(...),chain(...),..) etc
 
 
   function map(f){

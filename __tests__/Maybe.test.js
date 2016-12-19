@@ -4,6 +4,7 @@ const Container = monads.Container;
 const Maybe = monads.Maybe;
 const Nothing = monads.Nothing;
 const Just = monads.Just;
+const R = require("ramda");
 
 describe("Maybe monad",()=>{
 
@@ -250,6 +251,36 @@ describe("Maybe monad",()=>{
       expect( nothing.filter(()=>true) ).toBe(nothing);
 
     });
+  });
+
+
+  it("should APply value to other maybies",()=>{
+    values.forEach((value)=>{
+
+      function combine(a,b){
+        return JSON.stringify(a)+":"+JSON.stringify(b)
+      }
+
+      let fn = R.curry((a,b)=>{
+        return combine(a,b);
+      });
+
+      let a = Maybe.fromNullable(value);
+      let b = Maybe.fromNullable(value);
+
+
+      let ap = Maybe.of(fn).ap(a).ap(b);
+      expect(ap instanceof Maybe).toBe(true);
+
+      if(value==null || typeof value=="undefined"){
+        expect(()=>ap.value).toThrow();
+      }else{
+        expect(ap.value).toEqual(combine(value,value));
+      }
+
+
+    });
+
   });
 
 });
